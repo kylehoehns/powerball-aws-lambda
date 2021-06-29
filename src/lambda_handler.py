@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 from .powerball_service import PowerballService
 
@@ -7,7 +8,7 @@ class LambdaHandler:
     def __init__(self) -> None:
         self.powerballService = PowerballService()
 
-    def handleEvent(self, event, context):
+    def handleEvent(self, event, context) -> Any:
         return {
             "statusCode": 200,
             "headers": {"Content-Type": "application/json"},

@@ -1,4 +1,5 @@
 import random
+from typing import List
 
 from .powerball_response import PowerballResponse
 
@@ -10,7 +11,7 @@ class PowerballService:
         return PowerballResponse(numbers[:6], powerballs[0])
 
 
-def _buildRandomList(start, endExclusive):
+def _buildRandomList(start: int, endExclusive: int) -> List[int]:
     random_list = list(range(start, endExclusive))
     random.shuffle(random_list)
     return random_list
