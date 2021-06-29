@@ -11,6 +11,6 @@ class PowerballService:
 
 
 def _buildRandomList(start, endExclusive):
-    l = list(range(start, endExclusive))
-    random.shuffle(l)
-    return l
+    random_list = list(range(start, endExclusive))
+    random.shuffle(random_list)
+    return random_list
