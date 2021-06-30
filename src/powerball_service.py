@@ -11,7 +11,7 @@ class PowerballService:
         return PowerballResponse(numbers[:6], powerballs[0])
 
 
-def _buildRandomList(start: int, endExclusive: int) -> List[int]:
-    random_list = list(range(start, endExclusive))
+def _buildRandomList(start: int, end_exclusive: int) -> List[int]:
+    random_list = list(range(start, end_exclusive))
     random.shuffle(random_list)
     return random_list

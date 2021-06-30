@@ -14,7 +14,7 @@ class LambdaHandler:
             "headers": {"Content-Type": "application/json"},
             "body": json.dumps(
                 self.powerballService.generate_random_powerball(),
-                default=lambda x: x.__dict__,
+                default=lambda response: response.__dict__,
             ),
         }
 
