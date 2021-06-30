@@ -9,6 +9,7 @@ black = "*"
 isort = "*"
 flake8 = "*"
 pytest-cov = "*"
+pep8-naming = "*"
 
 [requires]
 python_version = "3.8"
