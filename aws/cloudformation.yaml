@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  AppName:
+    Type: String
+    Default: python-powerball-lambda
+  BucketOnly:
+    Type: String
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'false'
+Conditions:
+  ShouldCreateLambda:
+    !Equals [false, !Ref BucketOnly]
+Resources:
+  SourceCodeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join
+        - '-'
+        - - !Ref AppName
+          - 'bucket'
+  PowerballLambda:
+    Type: AWS::Lambda::Function
+    Condition: ShouldCreateLambda
+    Properties:
+      Description: Returns a randomized set of powerball numbers
+      Runtime: python3.8
+      FunctionName: !Ref AppName
+      Handler: src.lambda_handler.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Code:
+        S3Bucket: !Ref SourceCodeBucket
+        S3Key: app.zip
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - 
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
