@@ -45,6 +45,7 @@ deploy:
 		--capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
 		--parameters ParameterKey=AppName,ParameterValue=$(APP_NAME);
 	aws cloudformation wait stack-update-complete --stack-name $(APP_NAME);
+	aws cloudformation describe-stacks --stack-name python-powerball-lambda --query "Stacks[0].Outputs[0].OutputValue" | xargs curl
 
 cleanup:
 	aws s3 rm s3://$(APP_NAME)-bucket --recursive

@@ -21,6 +21,7 @@ Resources:
         - '-'
         - - !Ref AppName
           - 'bucket'
+
   PowerballLambda:
     Type: AWS::Lambda::Function
     Condition: ShouldCreateLambda
@@ -33,6 +34,54 @@ Resources:
       Code:
         S3Bucket: !Ref SourceCodeBucket
         S3Key: app.zip
+
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Ref AppName
+      Description: Python powerball API gateway
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Condition: ShouldCreateLambda
+    DependsOn:
+      - PowerballLambda
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+          - lambdaArn: !GetAtt PowerballLambda.Arn
+      ResourceId: !GetAtt ApiGateway.RootResourceId
+      RestApiId: !Ref ApiGateway
+
+  ApiGatewayDeployment:
+      Type: AWS::ApiGateway::Deployment
+      Condition: ShouldCreateLambda
+      DependsOn:
+        - ApiGatewayMethod
+      Properties:
+        RestApiId: !Ref ApiGateway
+        StageName: powerball
+
+  ApiGatewayLambdaExecutionPermission:
+    Type: AWS::Lambda::Permission
+    Condition: ShouldCreateLambda
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt PowerballLambda.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiId}/*/*/*
+        - apiId: !Ref ApiGateway
+
+
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -43,3 +92,8 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
+
+Outputs:
+  PowerballUrl:
+    Value: !Sub https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/powerball
+    Condition: ShouldCreateLambda
