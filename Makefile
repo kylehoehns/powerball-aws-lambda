@@ -34,17 +34,17 @@ deploy:
 		    --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
 		    --parameters ParameterKey=AppName,ParameterValue=$(APP_NAME) ParameterKey=BucketOnly,ParameterValue=true; \
 		aws cloudformation wait stack-create-complete --stack-name $(APP_NAME); \
-	fi;
-
+	fi; \
+	\
 	# copy source code .zip to new s3 bucket
-	aws s3 cp dist/app.zip s3://$(APP_NAME)-bucket
-
-	# update the stack (create lambda & roles)
+	HASH=$$(md5 -r dist/app.zip | awk '{print $$1}'); \
+	aws s3 cp dist/app.zip s3://$(APP_NAME)-bucket/app-$$HASH.zip; \
+	\
 	aws cloudformation update-stack --template-body file://aws/cloudformation.yaml \
 		--stack-name $(APP_NAME) \
 		--capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
-		--parameters ParameterKey=AppName,ParameterValue=$(APP_NAME);
-	aws cloudformation wait stack-update-complete --stack-name $(APP_NAME);
+		--parameters ParameterKey=AppName,ParameterValue=$(APP_NAME) ParameterKey=ApplicationHash,ParameterValue=$$HASH; \
+	aws cloudformation wait stack-update-complete --stack-name $(APP_NAME); \
 	aws cloudformation describe-stacks --stack-name $(APP_NAME) \
 		--query "Stacks[0].Outputs[0].OutputValue" | \
 		xargs curl

@@ -1,4 +1,4 @@
-# Python AWS Lambda
+# Powerball AWS Lambda
 
 This is a simple AWS Lambda written in python. It returns an HTTP response including a randomly selected powerball value containing random numbers.
 
